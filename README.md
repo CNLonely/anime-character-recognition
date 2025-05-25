@@ -16,8 +16,9 @@
 支持图像输入的一键识别，适用于推理部署
 
 # 展示
-<img src="assets/1.png" alt="1" width="600"/>
-<img src="assets/2.png" alt="2" width="600"/>
+<img src="assets/1.png" alt="1" style="width:100%;"/>
+<img src="assets/2.png" alt="2" style="width:100%;"/>
+
 
 ## 角色数据集
 由于目前互联网上尚无高质量、结构规范的动漫人物识别数据集，本项目同时提供了整理好的角色图像数据集，可用于训练与测试。
