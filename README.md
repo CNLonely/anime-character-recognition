@@ -1,11 +1,16 @@
 # anime-character-recognition
 训练和识别动漫人物
 
-## 使用说明
+## 一、训练说明
 
 本项目基于 ResNet-50 实现动漫角色识别，采用多种训练增强技术（CutMix、MixUp、对抗训练等）以提升模型鲁棒性和准确率。
 
-### 一、数据准备
+###  环境建议
+
+* 推荐使用带有 NVIDIA GPU 的环境运行，支持 CUDA。
+* 若使用 GPU，将启用自动混合精度加速处理。
+
+### 1.数据准备
 
 项目使用的数据需按以下结构组织：
 
@@ -36,7 +41,7 @@ datasets/
 * 请确保存在角色信息文件：`meta/character_meta.json`，格式为包含角色名称与 ID 的映射。
 ---
 
-### 二、环境依赖
+### 2.环境依赖
 
 建议使用 Python 3.8 及以上版本，依赖的主要包如下：
 
@@ -47,7 +52,7 @@ pip install -r requirements.txt
 
 ---
 
-### 三、训练方法
+### 3.训练方法
 
 运行主程序：
 
@@ -69,7 +74,7 @@ python train_character_classification.py
 
 ---
 
-### 四、模型输出与日志
+### 4.模型输出与日志
 
 训练过程中将输出以下信息：
 
@@ -86,7 +91,7 @@ python train_character_classification.py
 
 ---
 
-### 五、模型结构说明
+### 5.模型结构说明
 
 本项目使用 ResNet-50 作为基础模型结构，加载预训练参数后将输出层替换为适配当前分类数的全连接层：
 
@@ -96,7 +101,7 @@ model.fc = nn.Linear(model.fc.in_features, num_classes)
 
 ---
 
-### 六、增强与正则化技术
+### 6.增强与正则化技术
 
 本项目使用了以下训练策略以提升模型效果：
 
@@ -121,3 +126,62 @@ model.fc = nn.Linear(model.fc.in_features, num_classes)
 
 如需修改训练参数或模型结构，可直接编辑 `train.py` 文件中主函数部分，或自行添加命令行参数接口。
 
+---
+
+## 二、多尺度特征提取
+
+当模型训练完毕后，请运行以下命令进行多尺度融合特征提取：
+
+```
+python .\utils\extract_embeddings.py
+```
+
+该脚本将使用训练好的模型（位于 `models/anime_character_recognition_best.pth`），提取图像的特征表示并保存，用于后续的人物检索或聚类分析。
+
+### 1.功能说明
+
+* 加载已训练模型，移除分类头，仅保留 ResNet50 的特征提取部分。
+* 对每张图像进行三种尺度（224、256、288）处理，提取多尺度特征。
+* 对不同尺度下的特征进行平均融合并归一化。
+* 最终输出以下三个文件：
+
+  * `meta/embeddings.npy`：图像的特征向量（二维数组）
+  * `meta/labels.npy`：图像的类别标签（整数索引）
+  * `meta/image_paths.txt`：图像路径列表（文本文件）
+
+### 2/数据目录结构要求
+
+图像数据应放在如下结构中：
+
+```
+datasets/
+└── face_crop/
+    └── train/
+        ├── id_00001/
+        │   ├── img1.jpg
+        │   └── ...
+        ├── id_00002/
+        │   ├── img2.jpg
+        │   └── ...
+        └── ...
+```
+
+其中 `id_XXXXX` 为类别名称，每个类别文件夹下存放对应的图像。
+
+---
+
+## 三、动漫人脸识别
+
+当以上模型训练完毕并且特征提取完毕后，即可使用anime_face_recognizer.py识别动漫人物
+
+本项目提供一个已经训练好的yolo模型用于提取动漫人脸
+
+请在anime_face_recognizer.py里修改这里的目录，改成你的测试目录并把需要识别的图片放到该目录下
+
+```python
+input_path = filedialog.askopenfilename(
+        initialdir=r"C:\\Users\\CNLonely\\Desktop\\test11", #改成你的测试目录
+        title="请选择图片文件",
+        filetypes=[("Image Files", "*.jpg;*.jpeg;*.png;*.bmp;*.gif")]
+    )
+```
